@@ -5,7 +5,7 @@ static devic_gpio_t gpio = {};
 
 int main(void)
 {
-    devic_testing_gpio_init(&gpio);
+    devic_gpio_init(&gpio);
 
     gpio.fn->set(NULL, 1, true);
 

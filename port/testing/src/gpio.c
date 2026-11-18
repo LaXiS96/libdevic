@@ -10,7 +10,7 @@ static const devic_gpio_fn_t fn = {
     .set = set,
 };
 
-void devic_testing_gpio_init(devic_gpio_t *dev)
+void devic_gpio_init(devic_gpio_t *dev)
 {
     dev->fn = &fn;
 }

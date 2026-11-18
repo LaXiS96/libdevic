@@ -14,3 +14,33 @@ The name was born because I mistyped `libdevice`.
     - `include/libdevic/hal`: platform abstractions for communication buses (e.g. I2C, SPI), peripherals (e.g. GPIO, ADC) and anything else device drivers need to work
     - `src/device`: device driver implementations
 - `port`: platform-specific implementations of abstractions defined by `libdevic`, where "platform" can be a different architecture/framework/OS/...
+
+## Usage
+
+Add this repository as a submodule in your CMake-based application. Then, add this to your `CMakeLists.txt`:
+```cmake
+# Import the core library
+add_subdirectory(libdevic)
+# Import the platform port
+add_subdirectory(libdevic/port/ch32v003)
+# Import the devices you are interested in
+add_subdirectory(libdevic/device/blink)
+# Gotta link'em all!
+target_link_libraries(firmware PRIVATE
+    libdevic_port_ch32v003
+    libdevic_blink
+)
+```
+
+You also need to provide any port-specific dependency, e.g. for the CH32V003 port, provide and link `ch32v003_sdk` into your executable:
+```cmake
+add_library(ch32v003_sdk INTERFACE)
+target_include_directories(ch32v003_sdk INTERFACE ...)
+target_sources(ch32v003_sdk INTERFACE ...)
+
+target_link_libraries(firmware PRIVATE
+    ch32v003_sdk
+    libdevic_port_ch32v003
+    ...
+)
+```

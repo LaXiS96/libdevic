@@ -1,12 +1,12 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
+typedef uintptr_t devic_gpio_pin_t;
 
-typedef uint32_t devic_gpio_pin_t;
+// TODO pin setup? the basics: input, output
 
 typedef struct
 {
+    bool (*get)(void *ctx, devic_gpio_pin_t pin);
     void (*set)(void *ctx, devic_gpio_pin_t pin, bool value);
 } devic_gpio_fn_t;
 

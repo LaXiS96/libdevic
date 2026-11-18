@@ -1,8 +1,5 @@
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
-
 typedef struct
 {
     // TODO void (*transfer)(void *ctx, uint8_t address, const uint8_t *write_buf, size_t write_len, uint8_t *read_buf, size_t read_len);
