@@ -1,3 +1,5 @@
 #pragma once
 
-// TODO system time + delay abstractions
+extern volatile uint32_t devic_time_ms;
+
+void devic_time_delay_ms(uint32_t ms);

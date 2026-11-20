@@ -44,3 +44,7 @@ target_link_libraries(firmware PRIVATE
     ...
 )
 ```
+
+## TODOs
+- include ch32v003 sdk (submodule?)
+- bring in BME280/BME680 sensor APIs as submodules and their drivers

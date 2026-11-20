@@ -1,17 +1,10 @@
 #pragma once
 
+typedef struct devic_gpio devic_gpio_t;
+
 typedef uintptr_t devic_gpio_pin_t;
 
 // TODO pin setup? the basics: input, output
 
-typedef struct
-{
-    bool (*get)(void *ctx, devic_gpio_pin_t pin);
-    void (*set)(void *ctx, devic_gpio_pin_t pin, bool value);
-} devic_gpio_fn_t;
-
-typedef struct
-{
-    const devic_gpio_fn_t *fn;
-    void *ctx;
-} devic_gpio_t;
+bool devic_gpio_get(devic_gpio_t *dev, devic_gpio_pin_t pin);
+void devic_gpio_set(devic_gpio_t *dev, devic_gpio_pin_t pin, bool value);
