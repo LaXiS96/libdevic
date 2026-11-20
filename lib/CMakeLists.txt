@@ -7,13 +7,13 @@ target_precompile_headers(libdevic INTERFACE
 )
 
 add_library(libdevic_blink INTERFACE)
-target_sources(libdevic_blink INTERFACE
-    src/device/blink.c
-)
+target_sources(libdevic_blink INTERFACE src/device/blink.c)
 target_link_libraries(libdevic_blink INTERFACE libdevic)
 
+add_library(libdevic_bme280 INTERFACE)
+target_sources(libdevic_bme280 INTERFACE src/device/bme280.c)
+target_link_libraries(libdevic_bme280 INTERFACE libdevic BME280_SensorAPI)
+
 add_library(libdevic_ina226 INTERFACE)
-target_sources(libdevic_ina226 INTERFACE
-    src/device/ina226.c
-)
+target_sources(libdevic_ina226 INTERFACE src/device/ina226.c)
 target_link_libraries(libdevic_ina226 INTERFACE libdevic)

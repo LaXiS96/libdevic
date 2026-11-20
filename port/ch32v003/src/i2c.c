@@ -31,7 +31,7 @@ void devic_i2c_init(devic_i2c_remap_t remap, uint32_t clock)
                        .I2C_Ack = I2C_Ack_Enable,
                        .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
                        .I2C_ClockSpeed = clock,
-                       .I2C_DutyCycle = I2C_DutyCycle_16_9,
+                       .I2C_DutyCycle = I2C_DutyCycle_2,
                        .I2C_Mode = I2C_Mode_I2C,
                    });
     I2C_Cmd(I2C1, ENABLE);
@@ -91,9 +91,16 @@ static devic_err_t wait_flag(uint32_t flag, FlagStatus expected)
 
 devic_err_t devic_i2c_transfer(devic_i2c_t *dev, uint8_t address, const uint8_t *write_buf, size_t write_len, uint8_t *read_buf, size_t read_len)
 {
+    return devic_i2c_transferv(dev, address,
+                               (devic_i2c_buffer_t[]){{.data = write_buf, .length = write_len}}, 1,
+                               read_buf, read_len);
+}
+
+devic_err_t devic_i2c_transferv(devic_i2c_t *dev, uint8_t address, const devic_i2c_buffer_t *write_bufs, size_t write_len, uint8_t *read_buf, size_t read_len)
+{
     devic_err_return(wait_flag(I2C_FLAG_BUSY, RESET));
 
-    if (write_buf != NULL && write_len > 0)
+    if (write_bufs != NULL && write_len > 0)
     {
         I2C_GenerateSTART(I2C1, ENABLE);
         devic_err_return(wait_event(I2C_EVENT_MASTER_MODE_SELECT)); // EVT5
@@ -101,12 +108,16 @@ devic_err_t devic_i2c_transfer(devic_i2c_t *dev, uint8_t address, const uint8_t 
         I2C_Send7bitAddress(I2C1, address << 1, I2C_Direction_Transmitter);
         devic_err_return(wait_event(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED)); // EVT6
 
-        size_t i = 0;
-        I2C_SendData(I2C1, write_buf[i++]); // EVT8_1
-        while (i < write_len)
+        for (size_t n = 0; n < write_len; n++)
         {
-            devic_err_return(wait_event(I2C_EVENT_MASTER_BYTE_TRANSMITTING)); // EVT8
-            I2C_SendData(I2C1, write_buf[i++]);
+            const devic_i2c_buffer_t *buf = write_bufs + n;
+            size_t i = 0;
+            I2C_SendData(I2C1, buf->data[i++]); // EVT8_1
+            while (i < buf->length)
+            {
+                devic_err_return(wait_event(I2C_EVENT_MASTER_BYTE_TRANSMITTING)); // EVT8
+                I2C_SendData(I2C1, buf->data[i++]);
+            }
         }
 
         devic_err_return(wait_event(I2C_EVENT_MASTER_BYTE_TRANSMITTED)); // EVT8_2
@@ -135,7 +146,7 @@ devic_err_t devic_i2c_transfer(devic_i2c_t *dev, uint8_t address, const uint8_t 
     {
         I2C_AcknowledgeConfig(I2C1, DISABLE); // EVT6_1
         I2C_GenerateSTOP(I2C1, ENABLE);
-        devic_err_return(wait_event(I2C_EVENT_MASTER_BYTE_RECEIVED)); // EVT7
+        devic_err_return(wait_flag(I2C_FLAG_RXNE, SET));
         *read_buf = I2C_ReceiveData(I2C1);
     }
     else if (read_len == 2)
@@ -148,6 +159,7 @@ devic_err_t devic_i2c_transfer(devic_i2c_t *dev, uint8_t address, const uint8_t 
         *(read_buf + 1) = I2C_ReceiveData(I2C1);
     }
     else
+        // TODO it looks like we still read (but discard) one additional byte sometimes
         for (size_t i = 0; i < read_len; i++)
         {
             devic_err_return(wait_event(I2C_EVENT_MASTER_BYTE_RECEIVED)); // EVT7

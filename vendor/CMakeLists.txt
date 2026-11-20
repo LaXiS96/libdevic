@@ -1,0 +1,3 @@
+add_library(BME280_SensorAPI INTERFACE)
+target_include_directories(BME280_SensorAPI INTERFACE BME280_SensorAPI/)
+target_sources(BME280_SensorAPI INTERFACE BME280_SensorAPI/bme280.c)

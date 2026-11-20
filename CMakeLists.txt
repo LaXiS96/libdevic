@@ -7,4 +7,5 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
 add_subdirectory(lib)
+add_subdirectory(vendor)
 add_subdirectory(examples)
